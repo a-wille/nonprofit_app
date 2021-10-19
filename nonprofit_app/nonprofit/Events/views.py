@@ -5,15 +5,7 @@ from json import JSONEncoder
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render
 from django.http import HttpResponse
-from pymongo import MongoClient
-
-
-def get_mongo(**kwargs):
-	global _mongo_conn
-	user='annika'
-	pw='securityismypassion'
-	_mongo_conn = MongoClient(connect=False, username=user, password=pw, authSource='nonprofit')
-	return _mongo_conn
+from nonprofit.extra.view_helper import get_mongo
 
 
 class DateTimeEncoder(JSONEncoder):

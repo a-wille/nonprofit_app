@@ -24,6 +24,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('admin/', admin.site.urls),
     path('Events/', include('nonprofit.Events.urls')),
+    path('Volunteer/', include('nonprofit.Volunteer.urls')),
     path('', views.index)
 ]
 
