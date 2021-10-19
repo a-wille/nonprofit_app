@@ -1,0 +1,13 @@
+<html>
+<div id = donate>
+    {% if perms.nonprofit.can_volunteer %}
+        <span class="sunny">&nbsp;</span>
+        <div class="weather">
+            <h2>21<span>&ordm;C</span></h2>
+            <p>Sunny weather in London.</p>
+        </div>
+    {% else %}
+        <div><h2>Please sign in or create account to volunteer for an event!</h2></div>
+    {% endif %}
+</div>
+</html>

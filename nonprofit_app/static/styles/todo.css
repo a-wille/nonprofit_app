@@ -1,0 +1,93 @@
+#tabstrip {
+
+    font-size: 20px;
+    min-height: 100%;
+    min-width: 100%;
+}
+
+#brownie {
+    width: 300px;
+    height: 450px;
+    float: left;
+    padding: 20px;
+}
+
+#desc {
+    display: inline-block;
+}
+
+#intro {
+    alignment: center;
+    align: center;
+    text-align: center;
+    vertical-align: center;
+    padding-top: 100px;
+
+}
+
+#tabstrip ul {
+    align:right;
+}
+
+#tabstrip h2 span {
+    min-height: 100%;
+    min-width: 100%;
+}
+
+#header {
+    display: inline-block;
+    min-height: 100%;
+    text-align: left;
+    font-size: 30px;
+    min-width: 80%;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    padding-left: 40px;
+    position: relative;
+
+}
+
+#account {
+    alignment: right;
+    justify-content: right;
+    display: inline-block;
+    position: absolute;
+    right: 40px;
+    top: 50px;
+}
+
+#account2 {
+    alignment: right;
+    justify-content: right;
+    display: inline-block;
+    position: absolute;
+    right: 140px;
+    top: 47px;
+}
+
+#account_logout {
+    text-align: center;
+    align: right;
+    alignment: right;
+    font-size: 15px;
+    position: absolute;
+    right: 13px;
+    top: 30px;
+    width: 70px;
+}
+
+
+.k-tabstrip {
+    color: white;
+    alignment: right;
+    justify-content: right;
+    display: inline-block;
+}
+
+.k-button-primary {
+    text-align: right;
+    align: right;
+    alignment: right;
+    font-size: 15px;
+    height: 30px;
+}
