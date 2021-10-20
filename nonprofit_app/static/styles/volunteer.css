@@ -5,6 +5,10 @@
     /*width: 40%;*/
 }
 
+#grid {
+    text-align: left;
+}
+
 #listview {
     /*width: 20%;*/
     float: left;
