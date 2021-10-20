@@ -3,6 +3,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth import authenticate, logout
 from nonprofit.client.models import User
 from django.contrib.auth import login as login_django
+from nonprofit.extra.view_helper import get_mongo
 # Create your views here.
 
 from django.http import HttpResponse, HttpResponseRedirect
@@ -37,6 +38,9 @@ def create_account(request):
 							   email=request.POST.get('email'),
 							   password=request.POST.get('pass'),
 							   )
+	conn = get_mongo()
+	doc = {'user': user.username, 'id': user.email, 'events': [], 'donations': [], 'volunteer': request.POST.get('volunteer'), 'donor': request.POST.get('donor')}
+	conn.nonprofit.users.insert(doc)
 	if request.POST.get('donor') == 'true':
 		donor_group = Group.objects.get(name='donor')
 		donor_group.user_set.add(user)

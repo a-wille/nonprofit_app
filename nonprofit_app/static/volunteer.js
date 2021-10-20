@@ -1,6 +1,5 @@
 $(document).ready(function() {
     $("#listView").kendoListView({
-          template: "<li>${FirstName} ${LastName}</li>",
           dataSource: {
               transport: {
                     read: {
@@ -11,50 +10,30 @@ $(document).ready(function() {
               },
           }
       });
-    $("#scheduler").kendoScheduler({
-        date: new Date(Date.now()),
-        startTime: new Date(Date.now()),
-        height: 600,
-        views: [
-            { type: "agenda", selected: true, eventHeight: 100},
-        ],
-        timezone: "Etc/UTC",
+    $("#grid").kendoGrid({
         dataSource: {
-            batch: true,
             transport: {
+                type: "GET",
                 read: {
-                    url: "/Events/ViewAll/",
+                    url: "/Volunteer/GetAllEvents/",
                     dataType: "json",
-                    type: "GET"
                 },
-                update: {
-                    url: "/Events/Edit/",
-                    dataType: "json",
-                    type: "POST"
-                },
-                create: {
-                    url: "/Events/Create/",
-                    dataType: "json",
-                    type: "POST"
-                    },
-                destroy: {
-                    url: "/Events/Delete",
-                    dataType: "json",
-                    type: "POST"
-                },
+                pageSize: 20
+            },},
+            height: 600,
+            groupable: true,
+            sortable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true
             },
-            schema: {
-                model: {
-                    id: "id",
-                    fields: {
-                        id: { from: "id", type: "number" },
-                        title: { from: "name", type: "string" },
-                        start: { type: "date", from: "start" },
-                        end: { type: "date", from: "end" },
-                        description: { from: "description" }
-                    }
-                }
-            },
-        },
+            columns: [
+                {field: 'name', title: 'Event', type: 'string'},
+                {field: 'start', title: 'Date', type: 'date', template: '#= kendo.toString(start,"MM/dd/yyyy") #'},
+                {field: 'end', title: 'End Date', type: 'date', template: '#= kendo.toString(end,"MM/dd/yyyy") #'},
+                {field: 'location', title: 'Location', type: 'string'},
+                {field: 'description', title: 'Description', type: 'string'},
+                {field: 'volunteers_needed', title: 'Number of Volunteers Needed', type: 'string'},
+            ],
     });
 });

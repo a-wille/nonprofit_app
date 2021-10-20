@@ -21,6 +21,10 @@ def get_all(request):
 	docs = conn.nonprofit.events.find({})
 	for doc in docs:
 		doc.pop('_id')
+		doc.pop('volunteers')
+		doc.pop('donations')
+		doc.pop('volunteers_needed')
+		doc.pop('description')
 		data.append(doc)
 	return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder))
 

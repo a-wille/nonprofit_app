@@ -43,9 +43,9 @@ $(document).ready(function() {
                     fields: {
                         id: { from: "id", type: "number" },
                         title: { from: "name", type: "string" },
+                        description: { from: "location", type: "string" },
                         start: { type: "date", from: "start" },
                         end: { type: "date", from: "end" },
-                        description: { from: "description" }
                     }
                 }
             },
