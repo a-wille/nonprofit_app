@@ -29,6 +29,8 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'client.User'
+
+TIME_ZONE = "America/Chicago"
 # Application definition
 
 INSTALLED_APPS = [
