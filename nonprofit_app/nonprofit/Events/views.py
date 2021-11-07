@@ -19,13 +19,15 @@ def get_all(request):
 	data = []
 	conn = get_mongo()
 	docs = conn.nonprofit.events.find({})
+	dt = datetime.datetime.now()
 	for doc in docs:
 		doc.pop('_id')
 		doc.pop('volunteers')
 		doc.pop('donations')
 		doc.pop('volunteers_needed')
 		doc.pop('description')
-		data.append(doc)
+		if doc['end'] > dt:
+			data.append(doc)
 	return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder))
 
 def edit(request):
@@ -59,7 +61,12 @@ def create(request):
 
 
 def delete(request):
-	return HttpResponse([])
+	try:
+		conn = get_mongo()
+		conn.nonprofit.events.remove({'id': int(request.POST['models[0][id]'])})
+	except Exception as e:
+		return HttpResponse({'error': e})
+	return HttpResponse({'success': 'true'})
 
 def index(request):
 	return render(request, 'index.html')

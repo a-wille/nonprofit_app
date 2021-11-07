@@ -1,27 +1,53 @@
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                 break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function unrestricted_donation() {
+    $("#unrestricted_window").kendoWindow({
+        content: {
+            url: 'create'
+        },
+        width: 300,
+        height: 600,
+    });
+    var win = $("#account_window").data("kendoWindow");
+    win.open();
+    win.center();
+};
+
+// const csrftoken = getCookie('csrftoken');
+
 $(document).ready(function() {
-    $("#listView").kendoListView({
-        template: "<li>${data}</li>",
-        dataSource: {
-              transport: {
-                    type: "GET",
-                    read: {
-                        url: "/Volunteer/GetEvents/",
-                        dataType: "json",
-                    }
-              },
-          }
-      });
-    $("#grid").kendoGrid({
+    const csrftoken = getCookie('csrftoken');
+    $('#ud').kendoButton({
+        click: function(e) {
+            e.preventDefault();
+            unrestricted_donation();
+        }
+    });
+    $("#donation_grid").kendoGrid({
         dataSource: {
             transport: {
                 type: "GET",
                 read: {
-                    url: "/Volunteer/GetAllEvents/",
+                    url: "/Donate/GetAllEvents/",
                     dataType: "json",
                 },
                 pageSize: 20
             },},
-            height: 600,
+            height: 400,
             groupable: false,
             sortable: true,
             pageable: {
@@ -35,10 +61,8 @@ $(document).ready(function() {
                 {field: 'name', title: 'Event', type: 'string', width: "20%"},
                 {field: 'description', title: 'Description', type: 'string', width: "10%"},
                 {field: 'location', title: 'Location', type: 'string', width: "12%"},
-                {field: 'volunteers_needed', title: '# Volunteers Needed', width: "12%", type: 'string'},
-                {field: 'volunteers', hidden: "true"},
                 { command: [{
-                        name: "signup",
+                        name: "donate",
 
                         click: function(e) {
                             e.preventDefault();
@@ -46,7 +70,7 @@ $(document).ready(function() {
                             console.log(dataItem);
                             $.ajax({
                                 type: "POST",
-                                url: "/Volunteer/SignUp/",
+                                url: "/Donate/EventDonation/",
                                 headers: {'X-CSRFToken': csrftoken},
                                 data: {'id': dataItem.id},
                                 contentType: "application/x-www-form-urlencoded",
@@ -56,16 +80,16 @@ $(document).ready(function() {
                                         alert("Sorry, you aren't signed up to volunteer for this event because there are already enough volunteers for this event.")
                                     }
                                     else{
-                                         $('#grid').data('kendoGrid').dataSource.read();
-                                         $('#listView').data('kendoListView').dataSource.read();
+                                        $('#donation_grid').data('kendoGrid').dataSource.read();
                                     }
                                 }
                             });
                         }
 
                     }],
-                    title: "Sign Up", width: "12%"
+                    title: "Donate", width: "12%"
                 }
             ],
     });
+
 });

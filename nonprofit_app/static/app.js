@@ -19,18 +19,28 @@ const csrftoken = getCookie('csrftoken');
 
 function sign_in() {
     $("#login_window").show().kendoWindow({
-        content: {
-            url: 'login'
-        },
-    });
+                content: {
+                    url: 'login'
+                },
+                width: 300,
+                height: 400,
+            });
+            var win = $("#login_window").data("kendoWindow");
+            win.open();
+            win.center();
 };
 
 function create_account() {
-    $("#account_window").show().kendoWindow({
+    $("#account_window").kendoWindow({
         content: {
             url: 'create'
         },
+        width: 300,
+        height: 600,
     });
+    var win = $("#account_window").data("kendoWindow");
+    win.open();
+    win.center();
 };
 
 function logout() {
@@ -53,25 +63,32 @@ $(window).resize(function () {
     });
 });
 
-$(window).resize(function () {
-    $('.account-window').css({
-        position: 'absolute',
-        left: ($(window).width() - $('.account-window').outerWidth()) / 2,
-        top: ($(window).height() - $('.account-window').outerHeight()) / 2,
-    });
-});
+// $(window).resize(function () {
+//     $('.account-window').css({
+//         position: 'absolute',
+//         left: ($(window).width() - $('.account-window').outerWidth()) / 2,
+//         top: ($(window).height() - $('.account-window').outerHeight()) / 2,
+//     });
+// });
 
 $(document).ready(function() {
     $('#account_creation').kendoButton({
-        click: create_account
+        click: function(e) {
+            e.preventDefault();
+            create_account();
+        }
     });
     $('#account_signin').kendoButton({
-        click: sign_in
+        click: function(e) {
+            e.preventDefault();
+            sign_in();
+        }
     });
+
     $('#account_logout').kendoButton({
         click: logout
     })
-    $("#tabstrip").kendoTabStrip({
+    var tabStrip = $("#tabstrip").kendoTabStrip({
         animation:  {
             open: {
                 effects: "fadeIn"
@@ -84,5 +101,6 @@ $(document).ready(function() {
             'volunteer',
             'about'
         ]
-    });
+    }).data("kendoTabStrip");
+    tabStrip.select(0);
 });

@@ -33,6 +33,9 @@ def home(request):
 def account_view(request):
 	return render(request, 'account_creation.html')
 
+def donation_view(request):
+	return render(request, 'unrestricted_donation.html')
+
 def create_account(request):
 	user = User.objects.create(username=request.POST.get('user'),
 							   email=request.POST.get('email'),

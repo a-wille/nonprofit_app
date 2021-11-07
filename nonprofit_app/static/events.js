@@ -14,7 +14,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// const csrftoken = getCookie('csrftoken');
+const csrftoken = getCookie('csrftoken');
 
 $(document).ready(function() {
     const csrftoken = getCookie('csrftoken');
@@ -48,9 +48,10 @@ $(document).ready(function() {
                     type: "POST"
                     },
                 destroy: {
-                    url: "/Events/Delete",
+                    url: "/Events/Delete/",
                     dataType: "json",
-                    type: "POST"
+                    type: "POST",
+                    headers: {'X-CSRFToken': csrftoken},
                 },
             },
             schema: {
@@ -109,7 +110,10 @@ $(document).ready(function() {
                 contentType: "application/x-www-form-urlencoded",
                 success: function(response) {
                     alert("Success!");
-                    location.reload();
+                    $('#scheduler').data('kendoScheduler').dataSource.read();
+                    var form = $("#event-form").getKendoForm();
+                    form.clear();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
             });
             return false;

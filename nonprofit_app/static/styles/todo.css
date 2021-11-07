@@ -76,6 +76,32 @@
     width: 70px;
 }
 
+#login_window {
+    align: center;
+    alignment: center;
+    width: 300px;
+    height: 600px;
+}
+
+#account_window {
+    width: 300px;
+    height: 800px;
+}
+
+#donation_headers {
+    align: center;
+    alignment: center;
+    text-align: center;
+}
+
+#ud {
+    height: 36px;
+    align: center;
+    width: 390px;
+    font-size: 28px;
+    text-align: center;
+}
+
 
 .k-tabstrip {
     color: white;
