@@ -38,8 +38,7 @@ $(document).ready(function() {
                 {field: 'volunteers_needed', title: '# Volunteers Needed', width: "12%", type: 'string'},
                 {field: 'volunteers', hidden: "true"},
                 { command: [{
-                        name: "signup",
-
+                        name: "sign up",
                         click: function(e) {
                             e.preventDefault();
                             var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
