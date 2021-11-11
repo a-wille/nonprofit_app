@@ -29,11 +29,3 @@ def get_all_events(request):
 		if doc['end'] > dt:
 			data.append(doc)
 	return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder))
-
-def donate_to_event(request):
-	print("HI")
-	return HttpResponse([])
-
-def unrestricted_donation(request):
-	print("HI")
-	return HttpResponse([])

@@ -14,20 +14,28 @@ function getCookie(name) {
     return cookieValue;
 }
 
+var event_id = 0;
+
 function unrestricted_donation() {
-    $("#unrestricted_window").kendoWindow({
+    $("#unrestricted_window").show().kendoWindow({
         content: {
-            url: 'create'
+            url: 'donate_unrestricted'
         },
-        width: 300,
-        height: 600,
+        width: 250,
+        height: 300,
     });
-    var win = $("#account_window").data("kendoWindow");
-    win.open();
-    win.center();
 };
 
-// const csrftoken = getCookie('csrftoken');
+function restricted_donation(data_id) {
+    $("#restricted_window").show().kendoWindow({
+        title: 'Event ' + event_id + ': ' + data_id,
+        content: {
+            url: 'donate_restricted/'+event_id
+        },
+        width: 450,
+        height: 320,
+    });
+}
 
 $(document).ready(function() {
     const csrftoken = getCookie('csrftoken');
@@ -67,23 +75,26 @@ $(document).ready(function() {
                         click: function(e) {
                             e.preventDefault();
                             var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
-                            console.log(dataItem);
-                            $.ajax({
-                                type: "POST",
-                                url: "/Donate/EventDonation/",
-                                headers: {'X-CSRFToken': csrftoken},
-                                data: {'id': dataItem.id},
-                                contentType: "application/x-www-form-urlencoded",
-                                success: function(response) {
-                                    console.log(response)
-                                    if(response == '{"success": "false"}'){
-                                        alert("Sorry, you aren't signed up to volunteer for this event because there are already enough volunteers for this event.")
-                                    }
-                                    else{
-                                        $('#donation_grid').data('kendoGrid').dataSource.read();
-                                    }
-                                }
-                            });
+                            event_id = dataItem.id
+                            restricted_donation(dataItem.name);
+
+                            // console.log(dataItem);
+                            // $.ajax({
+                            //     type: "POST",
+                            //     url: "/Donate/EventDonation/",
+                            //     headers: {'X-CSRFToken': csrftoken},
+                            //     data: {'id': dataItem.id},
+                            //     contentType: "application/x-www-form-urlencoded",
+                            //     success: function(response) {
+                            //         console.log(response)
+                            //         if(response == '{"success": "false"}'){
+                            //             alert("Sorry, you aren't signed up to volunteer for this event because there are already enough volunteers for this event.")
+                            //         }
+                            //         else{
+                            //             $('#donation_grid').data('kendoGrid').dataSource.read();
+                            //         }
+                            //     }
+                            // });
                         }
 
                     }],

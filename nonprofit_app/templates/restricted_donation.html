@@ -10,7 +10,7 @@
 </head>
 
 <div id="content-main">
-
+    {{ event_id|json_script:"event_id" }}
 <form id="account-form">
 </form>
     {% csrf_token %}
@@ -35,7 +35,7 @@
         orientation: "vertical",
         items: [{
             type: "group",
-            label: "Make an Unrestricted Donation",
+            label: "Make a Restricted Donation",
             items: [
                 {field: "currency", label: "Donation Amount", validation: {required: true},
                     editor: function(container, options) {
@@ -53,13 +53,16 @@
         submit: function(e) {
             e.preventDefault();
             var $currency = $('#currency');
-
+            var id = JSON.parse(document.getElementById('event_id').textContent);
+            console.log(id);
             var vals = {
                 'currency': $currency.val(),
+                'id': id
             };
+            console.log("id: " + id)
             $.ajax({
                 type: "POST",
-                url: "/client/make_unrestricted_donation/",
+                url: "/client/make_restricted_donation/",
                 headers: {'X-CSRFToken': csrftoken},
                 data: vals,
                 contentType: "application/x-www-form-urlencoded",

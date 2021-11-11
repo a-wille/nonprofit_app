@@ -1,3 +1,5 @@
+import datetime
+
 from django.shortcuts import render
 from django.contrib.auth.models import Group
 from django.contrib.auth import authenticate, logout
@@ -33,8 +35,48 @@ def home(request):
 def account_view(request):
 	return render(request, 'account_creation.html')
 
-def donation_view(request):
+def donation_unrestricted(request):
 	return render(request, 'unrestricted_donation.html')
+
+
+def remove_substring_from_string(s, substr):
+	i = 0
+	while i < len(s) - len(substr) + 1:
+		if s[i:i + len(substr)] == substr:
+			break
+		i += 1
+	else:
+		return s
+	return s[:i] + s[i + len(substr):]
+
+def donation_restricted(request):
+	event_id = int(remove_substring_from_string(request.path, '/client/donate_restricted/'))
+	return render(request, 'restricted_donation.html', context={'event_id': event_id})
+
+
+def make_restricted_donation(request):
+	conn = get_mongo()
+	greatest_id = 0
+	all = conn.nonprofit.donations.find({})
+	for a in all:
+		if a['donation_id'] > greatest_id:
+			greatest_id = a['donation_id']
+	post = request.POST.dict()
+	doc = {'donation_id': greatest_id +1, 'date': datetime.datetime.now(), 'user': request.user.email, 'amount': post['currency'], 'type': 'restricted', 'event_id': post['id']}
+	conn.nonprofit.donations.insert(doc)
+	return HttpResponse({'success': 'true'})
+
+def make_unrestricted_donation(request):
+	conn = get_mongo()
+	greatest_id = 0
+	all = conn.nonprofit.donations.find({})
+	for a in all:
+		if a['donation_id'] > greatest_id:
+			greatest_id = a['donation_id']
+	post = request.POST.dict()
+	doc = {'donation_id': greatest_id +1, 'date': datetime.datetime.now(), 'user': request.user.email, 'amount': post['currency'], 'type': 'unrestricted', 'event_id': -1}
+	conn.nonprofit.donations.insert(doc)
+	return HttpResponse({'success': 'true'})
 
 def create_account(request):
 	user = User.objects.create(username=request.POST.get('user'),
