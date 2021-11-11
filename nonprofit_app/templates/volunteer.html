@@ -1,31 +1,26 @@
 <html>
-{% load static %}
-<head>
-    <head>
-    <!--base href="http://demos.telerik.com/kendo-ui/grid/remote-data-binding"-->
-    <style>html { font-size: 14px; font-family: Arial, Helvetica, sans-serif; }</style>
-    <title></title>
-    <link rel="stylesheet" href="{% static 'styles/kendo.common.min.css' %}" />
-    <link rel="stylesheet" href="{% static 'styles/kendo.material-main-dark.min.css' %}" />
-    <link rel="stylesheet" href="{% static 'styles/volunteer.css' %}"/>
-    <script src="{% static 'js/jquery.min.js' %}"></script>
-    <script src="{% static 'js/kendo.all.min.js' %}"></script>
-    </head>
-</head>
-<div id = donate>
+<div id = volunteer>
     {% if perms.nonprofit.can_volunteer %}
-        <span id="example" class="k-content">
-            <div>
-                <div id="listView" class="sidebyside" label="My Events" style="width: 20%; padding: 20px; text-align:center"></div>
+    <div id="horizontal">
+        <div id="left-pane">
+            <div class="pane-content">
+                <h3>My Events</h3>
+                <div id="mygrid"></div>
             </div>
-            <div>
-                 <div id="grid" class="sidebyside" style="width: 80%; padding: 10px; text-align:left"></div>
+        </div>
+        <div id="right-pane">
+            <div class="pane-content">
+                <h3>Events Needing Volunteers</h3>
+                <div id="grid"></div>
             </div>
-
-        </span>
+        </div>
+    </div>
+        <h2>
+        {% load static %}
+            <script src="{% static 'volunteer.js' %}"></script>
+        </h2>
     {% else %}
-        <div><h2>Please sign in or create account to volunteer for an event!</h2></div>
+        <body><div><h2>Please sign in or create account to volunteer for an event!</h2></div></body>
     {% endif %}
 </div>
 </html>
-<script src="{% static 'volunteer.js' %}"></script>

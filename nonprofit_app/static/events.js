@@ -112,7 +112,7 @@ $(document).ready(function() {
                     alert("Success!");
                     $('#scheduler').data('kendoScheduler').dataSource.read();
                     var form = $("#event-form").getKendoForm();
-                    form.clear();
+                    // form.clear();
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
             });

@@ -4,11 +4,41 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 import json
 
+
+def cancel(request):
+    conn = get_mongo()
+    doc = conn.nonprofit.events.find_one({'id': int(request.POST.get('id'))})
+    new_volunteers = doc['volunteers'].copy()
+    new_volunteers.pop(new_volunteers.index(request.user.email))
+    filter = {'id': int(request.POST.get('id'))}
+    new_vals = {"$set": {'volunteers': new_volunteers}}
+    conn.nonprofit.events.update_one(filter, new_vals)
+
+    filter = {'id': request.user.email}
+    events = conn.nonprofit.users.find_one({'id': request.user.email})['events'].copy()
+    events.pop(int(events.index(int(request.POST.get('id')))))
+    new_vals = {"$set": {'events': events}}
+    conn.nonprofit.users.update_one(filter, new_vals)
+    return HttpResponse({'success': 'true'})
+
+
 def sign_up(request):
     conn = get_mongo()
     doc = conn.nonprofit.events.find_one({'id':int(request.POST.get('id'))})
     if len(doc['volunteers']) >= int(doc['volunteers_needed']):
         return HttpResponse(json.dumps({'success': 'false'}))
+
+    #check that dates don't overlap
+    events = conn.nonprofit.users.find_one({'id': request.user.email})['events'].copy()
+    for e in events:
+        d = conn.nonprofit.events.find_one({'id': int(e)})
+        start1 = d['start']
+        end1 = d['end']
+        start2 = doc['start']
+        end2 = doc['end']
+        if start1 <= end2 and start2 <= end1:
+            return HttpResponse(json.dumps({'success': 'false'}))
+
     new_volunteers = doc['volunteers'].copy()
     new_volunteers.append(request.user.email)
     filter = {'id': int(request.POST.get('id'))}
@@ -16,15 +46,16 @@ def sign_up(request):
     conn.nonprofit.events.update_one(filter, new_vals)
 
     filter = {'id': request.user.email}
-    events = conn.nonprofit.users.find_one({'id': request.user.email})['events'].copy()
     events.append(int(request.POST.get('id')))
     new_vals = {"$set": {'events': events}}
     conn.nonprofit.users.update_one(filter, new_vals)
     return HttpResponse({'success': 'true'})
 
+
 def get_volunteer_events(request):
     data = []
     conn = get_mongo()
+
     doc = conn.nonprofit.users.find_one({'id': request.user.email})
     dt = datetime.datetime.now()
     event_list = []
@@ -32,13 +63,13 @@ def get_volunteer_events(request):
         event_list.append(e)
     for e in event_list:
         doc = conn.nonprofit.events.find_one({'id': e})
-        date = doc['start'].strftime("%m/%d/%Y")
-        start = doc['start'].strftime("%H:%M")
-        end = doc['end'].strftime("%H:%M")
-        m = "__________________________________\n{} {} - {}: {}\n{} \n Location: {}\n".format(date, start, end, doc['name'], doc['description'], doc['location'])
+        doc.pop('_id')
+        doc.pop('donations')
+        doc['volunteers_needed'] = int(doc['volunteers_needed']) - len(doc['volunteers'])
+        doc.pop('volunteers')
         if doc['end'] > dt:
-            data.append({'data': m})
-    data.insert(0, {'data': 'MY EVENTS'})
+            data.append(doc)
+    # data.insert(0, {'data': 'MY EVENTS'})
     return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder))
 
 def get_all_events(request):
@@ -57,6 +88,6 @@ def get_all_events(request):
             doc.pop('donations')
             doc['volunteers_needed'] = int(doc['volunteers_needed']) - len(doc['volunteers'])
             doc.pop('volunteers')
-            if doc['end'] > dt:
+            if doc['end'] > dt and doc['volunteers_needed'] != 0:
                 data.append(doc)
     return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder))

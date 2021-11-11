@@ -37,19 +37,19 @@ def create(request):
 	post = request.POST.dict()
 	start = datetime.datetime.strptime(post['start'], "%m/%d/%Y %H:%M %p")
 	end = datetime.datetime.strptime(post['end'], "%m/%d/%Y %H:%M %p")
-	possible = [1, 2, 3, 4, 5, 6, 7, 8, 9, 19]
 	conn = get_mongo()
 	docs = conn.nonprofit.events.find({})
+	greatest_id = 0
 	for d in docs:
-		if d['id'] in possible:
-			possible.pop(possible.index(d['id']))
+		if d['id'] > greatest_id:
+			greatest_id = int(d['id'])
 
 	doc = {
 		'name': post['myname'],
 		'description': post['description'],
 		'start': start,
 		'end': end,
-		'id': possible[0],
+		'id': greatest_id + 1,
 		'volunteers_needed': post['num_volunteers'],
 		'volunteers': [],
 		'donations': [],

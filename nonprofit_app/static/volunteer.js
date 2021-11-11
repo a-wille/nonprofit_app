@@ -11,6 +11,14 @@ $(document).ready(function() {
               },
           }
       });
+    $("#horizontal").kendoSplitter({
+        panes: [
+            { collapsible: false, size: "40%" },
+            { collapsible: false, size: "60%" }
+        ],
+        orientation: "horizontal",
+        width: "100%",
+    });
     $("#grid").kendoGrid({
         dataSource: {
             transport: {
@@ -21,7 +29,7 @@ $(document).ready(function() {
                 },
                 pageSize: 20
             },},
-            height: 600,
+            height: 500,
             groupable: false,
             sortable: true,
             pageable: {
@@ -29,9 +37,9 @@ $(document).ready(function() {
                 pageSizes: true
             },
             columns: [
-                {field: 'start', title: 'Date', type: 'date', width: "12%", template: '#= kendo.toString(start,"MM/dd/yyyy") #'},
-                {field: 'start', title: 'Start Time', type: 'date', width: "12%",template: '#= kendo.toString(start,"h:mm tt") #'},
-                {field: 'end', title: 'End Time', type: 'date', width: "12%", template: '#= kendo.toString(end, "h:mm tt") #'},
+                {field: 'start', title: 'Date', width: "117px", type: 'date', template: '#= kendo.toString(start,"MM/dd/yyyy") #'},
+                {field: 'start', title: 'Start Time',  width: "84px", type: 'date',template: '#= kendo.toString(start,"h:mm tt") #'},
+                {field: 'end', title: 'End Time',  width: "84px", type: 'date', template: '#= kendo.toString(end, "h:mm tt") #'},
                 {field: 'name', title: 'Event', type: 'string', width: "20%"},
                 {field: 'description', title: 'Description', type: 'string', width: "10%"},
                 {field: 'location', title: 'Location', type: 'string', width: "12%"},
@@ -52,11 +60,11 @@ $(document).ready(function() {
                                 success: function(response) {
                                     console.log(response)
                                     if(response == '{"success": "false"}'){
-                                        alert("Sorry, you aren't signed up to volunteer for this event because there are already enough volunteers for this event.")
+                                        alert("Sorry, you aren't signed up to volunteer for this event because you are already scheduled to volunteer another shift at conflicting times.")
                                     }
                                     else{
                                          $('#grid').data('kendoGrid').dataSource.read();
-                                         $('#listView').data('kendoListView').dataSource.read();
+                                         $('#mygrid').data('kendoGrid').dataSource.read();
                                     }
                                 }
                             });
@@ -65,6 +73,55 @@ $(document).ready(function() {
                     }],
                     title: "Sign Up", width: "12%"
                 }
+            ],
+    });
+    $("#mygrid").kendoGrid({
+        dataSource: {
+            transport: {
+                type: "GET",
+                read: {
+                    url: "/Volunteer/GetEvents/",
+                    dataType: "json",
+                },
+                pageSize: 20
+            },},
+            height: 500,
+            groupable: false,
+            sortable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true
+            },
+            columns: [
+                {field: 'start', title: 'Date', type: 'date', width: "117px", template: '#= kendo.toString(start,"MM/dd/yyyy") #', attributes: {"class": "table-cell text-left", style: "text-align: left"}},
+                {field: 'start', title: 'Start Time', width: '84px', type: 'date', template: '#= kendo.toString(start,"h:mm tt") #', attributes: {"class": "table-cell text-left", style: "text-align: left"}},
+                {field: 'end', title: 'End Time',  width: '84px', type: 'date', template: '#= kendo.toString(end, "h:mm tt") #', attributes: {"class": "table-cell text-left", style: "text-align: left"}},
+                {field: 'name', title: 'Event', type: 'string', width: '17%', attributes: {"class": "table-cell text-left", style: "text-align: left"}},
+                {field: 'location', title: 'Location', type: 'string', attributes: {"class": "table-cell text-left", style: "text-align: left"}},
+                { command: [{
+                        name: "cancel  ",
+                        click: function(e) {
+                            e.preventDefault();
+                            var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+                            console.log(dataItem);
+                            $.ajax({
+                                type: "POST",
+                                url: "/Volunteer/Cancel/",
+                                headers: {'X-CSRFToken': csrftoken},
+                                data: {'id': dataItem.id},
+                                contentType: "application/x-www-form-urlencoded",
+                                success: function(response) {
+                                    $('#grid').data('kendoGrid').dataSource.read();
+                                    $('#mygrid').data('kendoGrid').dataSource.read();
+
+                                }
+                            });
+                        }
+
+                    }],
+                    title: "Cancel", width: "125px", attributes: {"class": "table-cell text-left", style: "text-align: left; font-size: 10px;"}
+                },
+
             ],
     });
 });

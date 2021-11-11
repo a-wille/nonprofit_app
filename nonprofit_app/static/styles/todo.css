@@ -102,6 +102,19 @@
     text-align: center;
 }
 
+#horizontal {
+    position: relative;
+    width: 100%;
+    height: 600px;
+}
+
+#mygrid {
+    text-align: left;
+}
+
+.pane-content {
+    padding: 0 10px;
+}
 
 .k-tabstrip {
     color: white;
@@ -116,4 +129,8 @@
     alignment: right;
     font-size: 15px;
     height: 30px;
+}
+
+.k-grid {
+    padding: 0px;
 }
