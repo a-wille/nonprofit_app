@@ -77,13 +77,27 @@ $(document).ready(function() {
                 {field: "myname", label: "Event Name", validation: {required: true}},
                 {field: "description", label: "Description:", validation: { required: true}},
                 {field: "start", label: "Start", validation: {required: true},
-                    editor: "DateTimePicker"
+                    editor: "DateTimePicker",
+                    editorOptions: {min: new Date()}
                 },
                 {field: "end", label: "End", validation: {required: true},
-                    editor: "DateTimePicker"
+                    editor: "DateTimePicker",
+                    editorOptions: {min: new Date()},
+                    validation: {
+                        required: true,
+                        greaterdate: function (input) {
+                            if (input.is("[name='end']") && input.val() != "") {
+                                var date = kendo.parseDate(input.val()),
+                                    start = kendo.parseDate($("[name='start']").val());
+                                input.attr("data-greaterdate-msg", "Event should end after event start");
+                                return start == null || start.getTime() < date.getTime();
+                            }
+                            return true;
+                        }
+                    }
                 },
                 {field: "location", label: "Location", validation: {required: true}},
-                {field: "num_volunteers", label: "Number of Volunteers Needed", validation: {required: true}},
+                {field: "num_volunteers", label: "Number of Volunteers Needed", editor: "NumericTextBox", editorOptions: {format: "#"}, validation: {required: true}},
             ]
         }],
         submit: function(e) {

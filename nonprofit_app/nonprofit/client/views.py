@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, logout
 from nonprofit.client.models import User
 from django.contrib.auth import login as login_django
 from nonprofit.extra.view_helper import get_mongo
+import pytz
 # Create your views here.
 
 from django.http import HttpResponse, HttpResponseRedirect
@@ -62,7 +63,7 @@ def make_restricted_donation(request):
 		if a['donation_id'] > greatest_id:
 			greatest_id = a['donation_id']
 	post = request.POST.dict()
-	doc = {'donation_id': greatest_id +1, 'date': datetime.datetime.now(), 'user': request.user.email, 'amount': post['currency'], 'type': 'restricted', 'event_id': post['id']}
+	doc = {'donation_id': greatest_id +1, 'date': datetime.datetime.now(tz=pytz.timezone('US/Central')), 'user': request.user.email, 'amount': post['currency'], 'type': 'restricted', 'event_id': post['id']}
 	conn.nonprofit.donations.insert(doc)
 	return HttpResponse({'success': 'true'})
 
@@ -74,7 +75,7 @@ def make_unrestricted_donation(request):
 		if a['donation_id'] > greatest_id:
 			greatest_id = a['donation_id']
 	post = request.POST.dict()
-	doc = {'donation_id': greatest_id +1, 'date': datetime.datetime.now(), 'user': request.user.email, 'amount': post['currency'], 'type': 'unrestricted', 'event_id': -1}
+	doc = {'donation_id': greatest_id +1, 'date': datetime.datetime.now(tz=pytz.timezone('US/Central')), 'user': request.user.email, 'amount': post['currency'], 'type': 'unrestricted', 'event_id': -1}
 	conn.nonprofit.donations.insert(doc)
 	return HttpResponse({'success': 'true'})
 
@@ -83,8 +84,11 @@ def create_account(request):
 							   email=request.POST.get('email'),
 							   password=request.POST.get('pass'),
 							   )
+	user.is_active = True
+	user.set_password(user.password)
+	user.save()
 	conn = get_mongo()
-	doc = {'user': user.username, 'id': user.email, 'events': [], 'donations': [], 'volunteer': request.POST.get('volunteer'), 'donor': request.POST.get('donor')}
+	doc = {'user': user.username, 'password': user.password, 'id': user.email, 'events': [], 'donations': [], 'volunteer': request.POST.get('volunteer'), 'donor': request.POST.get('donor')}
 	conn.nonprofit.users.insert(doc)
 	if request.POST.get('donor') == 'true':
 		donor_group = Group.objects.get(name='donor')
@@ -94,9 +98,7 @@ def create_account(request):
 		v_group = Group.objects.get(name='volunteer')
 		v_group.user_set.add(user)
 
-	user.is_active = True
-	user.set_password(user.password)
-	user.save()
+
 	user = authenticate(username=request.POST.get('user'), password=request.POST.get('pass'))
 
 	if user:

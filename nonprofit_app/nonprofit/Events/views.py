@@ -1,7 +1,7 @@
 import datetime
 import json
 from json import JSONEncoder
-
+import pytz
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -19,14 +19,15 @@ def get_all(request):
 	data = []
 	conn = get_mongo()
 	docs = conn.nonprofit.events.find({})
-	dt = datetime.datetime.now()
+	dt = datetime.datetime.now(tz=pytz.timezone('US/Central'))
 	for doc in docs:
 		doc.pop('_id')
 		doc.pop('volunteers')
 		doc.pop('donations')
 		doc.pop('volunteers_needed')
 		doc.pop('description')
-		if doc['end'] > dt:
+		doc['endnew'] = pytz.timezone("US/Central").localize(doc['end'])
+		if doc['endnew'] > dt:
 			data.append(doc)
 	return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder))
 

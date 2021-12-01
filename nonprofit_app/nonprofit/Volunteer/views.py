@@ -1,4 +1,7 @@
 import datetime
+
+import pytz
+
 from nonprofit.extra.view_helper import get_mongo
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
@@ -57,7 +60,7 @@ def get_volunteer_events(request):
     conn = get_mongo()
 
     doc = conn.nonprofit.users.find_one({'id': request.user.email})
-    dt = datetime.datetime.now()
+    dt = datetime.datetime.now(tz=pytz.timezone("US/Central"))
     event_list = []
     for e in doc['events']:
         event_list.append(e)
@@ -67,7 +70,8 @@ def get_volunteer_events(request):
         doc.pop('donations')
         doc['volunteers_needed'] = int(doc['volunteers_needed']) - len(doc['volunteers'])
         doc.pop('volunteers')
-        if doc['end'] > dt:
+        doc['endnew'] = pytz.timezone("US/Central").localize(doc['end'])
+        if doc['endnew'] > dt:
             data.append(doc)
     # data.insert(0, {'data': 'MY EVENTS'})
     return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder))
@@ -76,7 +80,7 @@ def get_all_events(request):
     #kinda a lie, returns all events that the user isn't actively signed up for
     data = []
     conn = get_mongo()
-    dt = datetime.datetime.now()
+    dt = datetime.datetime.now(tz=pytz.timezone("US/Central"))
     docs = conn.nonprofit.events.find({})
     for doc in docs:
         already_volunteering = 0
@@ -88,6 +92,7 @@ def get_all_events(request):
             doc.pop('donations')
             doc['volunteers_needed'] = int(doc['volunteers_needed']) - len(doc['volunteers'])
             doc.pop('volunteers')
-            if doc['end'] > dt and doc['volunteers_needed'] != 0:
+            doc['endnew'] = pytz.timezone("US/Central").localize(doc['end'])
+            if doc['endnew'] > dt and doc['volunteers_needed'] != 0:
                 data.append(doc)
     return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder))

@@ -71,30 +71,11 @@ $(document).ready(function() {
                 {field: 'location', title: 'Location', type: 'string', width: "12%"},
                 { command: [{
                         name: "donate",
-
                         click: function(e) {
                             e.preventDefault();
                             var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
                             event_id = dataItem.id
                             restricted_donation(dataItem.name);
-
-                            // console.log(dataItem);
-                            // $.ajax({
-                            //     type: "POST",
-                            //     url: "/Donate/EventDonation/",
-                            //     headers: {'X-CSRFToken': csrftoken},
-                            //     data: {'id': dataItem.id},
-                            //     contentType: "application/x-www-form-urlencoded",
-                            //     success: function(response) {
-                            //         console.log(response)
-                            //         if(response == '{"success": "false"}'){
-                            //             alert("Sorry, you aren't signed up to volunteer for this event because there are already enough volunteers for this event.")
-                            //         }
-                            //         else{
-                            //             $('#donation_grid').data('kendoGrid').dataSource.read();
-                            //         }
-                            //     }
-                            // });
                         }
 
                     }],
@@ -102,5 +83,31 @@ $(document).ready(function() {
                 }
             ],
     });
-
+    $("#my_donation_grid").kendoGrid({
+        dataSource: {
+            transport: {
+                type: "GET",
+                read: {
+                    url: "/Donate/GetMyDonations/",
+                    dataType: "json",
+                },
+                pageSize: 20
+            },},
+            height: 400,
+            groupable: false,
+            sortable: true,
+            pageable: {
+                refresh: true,
+                pageSizes: true
+            },
+            columns: [
+                // {field: 'date', title: 'Date', type: 'date', width: "12%", template: '#= kendo.toString(start,"MM/dd/yyyy") #'},
+                // {field: 'date', title: 'Time', type: 'date', width: "12%",template: '#= kendo.toString(start,"h:mm tt") #'},
+                {field: 'dark', title: 'Date', type: 'string', width: "12%"},
+                {field: 'darktime', title: 'Time', type: 'string', width: "12%"},
+                {field: 'type', title: 'Donation Type', type: 'string', width: "20%"},
+                {field: 'event_id', title: 'Event (if applicable)', type: 'string', width: "10%"},
+                {field: 'amount', title: 'Donation Amount', type: 'string', width: "12%"},
+            ],
+    });
 });
