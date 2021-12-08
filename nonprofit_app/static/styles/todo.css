@@ -75,6 +75,14 @@
     top: 30px;
     width: 70px;
 }
+#user_manual {
+    text-align: center;
+    align: right;
+    alignment: right;
+    font-size: 15px;
+    font-color: black;
+    width: 120px;
+}
 
 #login_window {
     align: center;

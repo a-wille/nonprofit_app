@@ -30,6 +30,10 @@ function sign_in() {
             win.center();
 };
 
+function redirect() {
+    window.location.replace('http://127.0.0.1:8000/client/user_manual/');
+}
+
 function create_account() {
     $("#account_window").kendoWindow({
         content: {
@@ -84,23 +88,72 @@ $(document).ready(function() {
             sign_in();
         }
     });
+    $('#user_manual').kendoButton({
+        click: function(e) {
+            e.preventDefault();
+            redirect();
+        }
+    });
 
     $('#account_logout').kendoButton({
         click: logout
     })
-    var tabStrip = $("#tabstrip").kendoTabStrip({
-        animation:  {
-            open: {
-                effects: "fadeIn"
+    // var tabStrip = $("#tabstrip").kendoTabStrip({
+    //     animation:  {
+    //         open: {
+    //             effects: "fadeIn"
+    //         }
+    //     },
+    //     contentUrls: [
+    //         'home',
+    //         'events',
+    //         'donate',
+    //         'volunteer',
+    //         'about'
+    //     ]
+    // }).data("kendoTabStrip");
+    // tabStrip.select(0);
+
+    $.ajax({
+        type: "POST",
+        url: "/client/check_admin/",
+        headers: {'X-CSRFToken': csrftoken},
+        contentType: "application/x-www-form-urlencoded",
+        success: function(response) {
+            if(response == "success"){
+                var tabStrip = $("#tabstrip").kendoTabStrip({
+                    animation:  {
+                        open: {
+                            effects: "fadeIn"
+                        }
+                    },
+                    contentUrls: [
+                        'home',
+                        'events',
+                        'donate',
+                        'volunteer',
+                        'all_events',
+                        "all_volunteers"
+                    ]
+                }).data("kendoTabStrip");
+                tabStrip.select(0);
+            } else {
+                var tabStrip = $("#tabstrip").kendoTabStrip({
+                    animation:  {
+                        open: {
+                            effects: "fadeIn"
+                        }
+                    },
+                    contentUrls: [
+                        'home',
+                        'events',
+                        'donate',
+                        'volunteer',
+                        'about'
+                    ]
+                }).data("kendoTabStrip");
+                tabStrip.select(0);
             }
-        },
-        contentUrls: [
-            'home',
-            'events',
-            'donate',
-            'volunteer',
-            'about'
-        ]
-    }).data("kendoTabStrip");
-    tabStrip.select(0);
+        }
+    });
 });

@@ -1,0 +1,13 @@
+CS741 Mid-term Exam: Friday Oct. 8, 2021
+
+1. Software Engineering definition, what software engineering approach emphasizes?
+
+2. Main activities in the maintenance phase
+3. Software Process Model (life cycle models)
+4. Case study for the functional requirements & assumptions, non-functional requirements, not a requirements
+
+5. Use case model 
+
+
+But please be sure your hand writing is easy to read.
+

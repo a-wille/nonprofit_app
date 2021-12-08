@@ -27,6 +27,12 @@ def volunteer(request):
 def about(request):
 	return render(request, 'about.html')
 
+def all_events(request):
+	return render(request, 'all_events.html')
+
+def all_volunteers(request):
+	return render(request, 'all_users.html')
+
 def login(request):
 	return render(request, 'login.html')
 
@@ -35,6 +41,9 @@ def home(request):
 
 def account_view(request):
 	return render(request, 'account_creation.html')
+
+def user_manual(request):
+	return render(request, 'user_manual.html')
 
 def donation_unrestricted(request):
 	return render(request, 'unrestricted_donation.html')
@@ -53,6 +62,61 @@ def remove_substring_from_string(s, substr):
 def donation_restricted(request):
 	event_id = int(remove_substring_from_string(request.path, '/client/donate_restricted/'))
 	return render(request, 'restricted_donation.html', context={'event_id': event_id})
+
+
+def user_summary(request):
+	user_id = str(remove_substring_from_string(request.path, '/client/user_summary/'))
+	conn = get_mongo()
+	now = datetime.datetime.now()
+	doc = conn.nonprofit.users.find_one({'id': user_id})
+	if not doc:
+		doc = conn.nonprofit.inactive_users.find_one({'id': user_id})
+	my_context = {}
+	my_context['user_id'] = user_id
+	my_context['name'] = doc['user']
+	hours = 0
+	past_events = "";
+	if doc['volunteer']:
+		for event in doc['events']:
+			edoc = conn.nonprofit.events.find_one({'id': event})
+			if edoc and edoc['start'] > now:
+				diff = edoc['end'] - edoc['start']
+				diff_in_hours = diff.total_seconds() / 3600
+				hours += diff_in_hours
+				past_events += "{}\n{}\nId: {}\n\n".format(edoc['name'],
+														   edoc['start'].strftime("%Y-%m-%d %H:%M %p"),
+														   edoc['id'])
+	my_context['volunteer_hours'] = hours
+
+	donations = 0
+	past_donations = ""
+	if doc['donor']:
+		ddocs = conn.nonprofit.donations.find({'user': user_id})
+		for do in ddocs:
+			donations += int(do['amount'])
+			event_name = "None"
+			if do['type'] == 'restricted':
+				event = conn.nonprofit.events.find_one({'id': do['event_id']})
+				if event:
+					event_name = event_name['name']
+			past_donations += "{}\nAmount: ${}\nType of Donation: {}\nEvent Name (if applicable): {}\n\n".format(
+													   do['date'].strftime("%Y-%m-%d %H:%M"),
+													   do['amount'],
+													   do['type'], event_name)
+	my_context['donations'] = donations
+	permissions = ""
+	if doc['volunteer']:
+		permissions += "Volunteer, "
+		my_context['volunteer'] = True
+	if doc['donor']:
+		permissions += "Donor, "
+		my_context['donor'] = True
+	if doc['user'] == "admin":
+		permissions += "Admin, "
+	my_context['permissions'] = permissions[:-2]
+	my_context['past_donations'] = past_donations
+	my_context['past_events'] = past_events
+	return render(request, 'report.html', context=my_context)
 
 
 def make_restricted_donation(request):
@@ -119,3 +183,8 @@ def check_login(request):
 def my_logout(request):
 	logout(request)
 	return HttpResponse({'success': True})
+
+def check_admin(request):
+	if request.user.has_perm('can_admin'):
+		return HttpResponse({'success': True})
+	return HttpResponse({'success': False})

@@ -55,11 +55,70 @@ def sign_up(request):
     return HttpResponse({'success': 'true'})
 
 
+def get_active(request):
+    conn = get_mongo()
+    data = []
+    docs = conn.nonprofit.users.find({})
+    for doc in docs:
+        doc['admin'] = None
+        if doc['id'] == 'admin@gmail.com':
+            doc['admin'] = 'true'
+        doc.pop('_id')
+        doc.pop('password')
+        data.append(doc)
+    return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder))
+
+def get_inactive(request):
+    conn = get_mongo()
+    data = []
+    docs = conn.nonprofit.inactive_users.find({})
+    for doc in docs:
+        doc['admin'] = None
+        if doc['id'] == 'admin@gmail.com':
+            doc['admin'] = 'true'
+        doc.pop('_id')
+        data.append(doc)
+    return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder))
+
+def deactivate(request):
+    conn = get_mongo()
+    doc = conn.nonprofit.users.find_one({'id': request.POST['id']})
+    now = datetime.datetime.now()
+    if doc['user'] == request.user.username:
+        return HttpResponse('nope')
+    events = doc['events']
+    for event in events:
+        doc = conn.nonprofit.events.find_one({'id': event})
+        if doc and doc['start'] > now:
+            original_volunteers = doc['volunteers']
+            new_volunteers = original_volunteers.copy()
+            new_volunteers.pop(new_volunteers.index(request.POST['id']))
+            filter = {'id': event}
+            new_vals = {'$set': {'volunteers': new_volunteers}}
+            conn.nonprofit.events.update_one(filter, new_vals)
+    doc = conn.nonprofit.users.find_one({'id': request.POST['id']})
+    conn.nonprofit.inactive_users.insert(doc)
+    conn.nonprofit.users.remove({'id': request.POST['id']})
+    return HttpResponse('Good')
+
+def activate(request):
+    conn = get_mongo()
+    doc = conn.nonprofit.inactive_users.find_one({'id': request.POST['id']})
+    conn.nonprofit.users.insert(doc)
+    conn.nonprofit.inactive_users.remove({'id': request.POST['id']})
+    return HttpResponse('Good')
+
+
+def get_summary(request):
+    return HttpResponse("Good")
+
 def get_volunteer_events(request):
     data = []
     conn = get_mongo()
-
-    doc = conn.nonprofit.users.find_one({'id': request.user.email})
+    email = request.user.email
+    if email == '':
+        email = 'admin@gmail.com'
+    doc = conn.nonprofit.users.find_one({'id': email})
     dt = datetime.datetime.now(tz=pytz.timezone("US/Central"))
     event_list = []
     for e in doc['events']:
@@ -73,7 +132,6 @@ def get_volunteer_events(request):
         doc['endnew'] = pytz.timezone("US/Central").localize(doc['end'])
         if doc['endnew'] > dt:
             data.append(doc)
-    # data.insert(0, {'data': 'MY EVENTS'})
     return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder))
 
 def get_all_events(request):

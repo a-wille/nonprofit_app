@@ -15,7 +15,8 @@
 </head>
 <body class="k-content">
     <div>
-        <header id="header" class="k-primary">Ghirardelli please sponsor me...</header>
+        <header id="header" class="k-primary">Ghirardelli please sponsor me...    <button id="user_manual" class="k-button-primary">User Manual</button></header>
+
         {% if user.is_authenticated %}
             <header id="account">Welcome {{ username }}</header>
             <header id="account"><button id="account_logout" class="k-button-primary">Log Out</button></header>
@@ -38,9 +39,14 @@
             <li>
                 Volunteer
             </li>
-            <li>
-                About
+            {% if perms.nonprofit.can_admin %}
+            <li id="all_events">
+                All Events
             </li>
+            <li id="all_volunteers">
+                All Users
+            </li>
+            {% endif %}
         </ul>
     </div>
     <div id="login_window" style="display:none"></div>

@@ -46,7 +46,7 @@ def get_my_donations(request):
 		doc.pop('_id')
 		doc.pop('user')
 		doc.pop('donation_id')
-		doc['dark'] =pytz.timezone("UTC").localize(doc['date']).astimezone(pytz.timezone("US/Central")).strftime("%d/%m/%y")
+		doc['dark'] = pytz.timezone("UTC").localize(doc['date']).astimezone(pytz.timezone("US/Central")).strftime("%m/%d/%y")
 		doc['darktime'] = pytz.timezone("UTC").localize(doc['date']).astimezone(pytz.timezone("US/Central")).strftime("%H:%M")
 		doc.pop('date')
 		data.append(doc)
