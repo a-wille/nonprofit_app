@@ -1,5 +1,6 @@
 
 function getCookie(name) {
+    //returns cookie
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
@@ -19,6 +20,8 @@ var event_id = 0;
 
 $(document).ready(function() {
     const csrftoken = getCookie('csrftoken');
+
+    //populates grid of all events for admin
     $("#event_grid").kendoGrid({
         dataSource: {
             transport: {
@@ -166,6 +169,8 @@ $(document).ready(function() {
             ths.refresh();
         }
     });
+
+    //populates cancelled events grid for admin
     $("#cancel_grid").kendoGrid({
         dataSource: {
             transport: {

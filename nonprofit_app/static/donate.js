@@ -1,4 +1,5 @@
 function getCookie(name) {
+    //returns cookie
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
@@ -17,6 +18,7 @@ function getCookie(name) {
 var event_id = 0;
 
 function unrestricted_donation() {
+    //creates and populates window so user can make an unrestricted donation
     $("#unrestricted_window").show().kendoWindow({
         content: {
             url: 'donate_unrestricted'
@@ -27,6 +29,7 @@ function unrestricted_donation() {
 };
 
 function restricted_donation(data_id) {
+    //creates and populates window so user can make a restricted donation
     $("#restricted_window").show().kendoWindow({
         title: 'Event ' + event_id + ': ' + data_id,
         content: {
@@ -39,12 +42,15 @@ function restricted_donation(data_id) {
 
 $(document).ready(function() {
     const csrftoken = getCookie('csrftoken');
+    //sets up button for on click event to make unrestricted donation
     $('#ud').kendoButton({
         click: function(e) {
             e.preventDefault();
             unrestricted_donation();
         }
     });
+
+    //creates and populates a grid with all events you can make a donation to
     $("#donation_grid").kendoGrid({
         dataSource: {
             transport: {
@@ -83,6 +89,8 @@ $(document).ready(function() {
                 }
             ],
     });
+
+    //creates and populates a grid with data about a user's historical donations
     $("#my_donation_grid").kendoGrid({
         dataSource: {
             transport: {
@@ -101,8 +109,6 @@ $(document).ready(function() {
                 pageSizes: true
             },
             columns: [
-                // {field: 'date', title: 'Date', type: 'date', width: "12%", template: '#= kendo.toString(start,"MM/dd/yyyy") #'},
-                // {field: 'date', title: 'Time', type: 'date', width: "12%",template: '#= kendo.toString(start,"h:mm tt") #'},
                 {field: 'dark', title: 'Date', type: 'string', width: "12%"},
                 {field: 'darktime', title: 'Time', type: 'string', width: "12%"},
                 {field: 'type', title: 'Donation Type', type: 'string', width: "20%"},

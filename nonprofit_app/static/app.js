@@ -1,5 +1,6 @@
 
 function getCookie(name) {
+    //returns cookie
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
@@ -18,6 +19,7 @@ function getCookie(name) {
 const csrftoken = getCookie('csrftoken');
 
 function sign_in() {
+    //creates and populates window for logging in a user
     $("#login_window").show().kendoWindow({
                 content: {
                     url: 'login'
@@ -31,10 +33,12 @@ function sign_in() {
 };
 
 function redirect() {
+    //redirects a user to the user manual on event click
     window.location.replace('http://127.0.0.1:8000/client/user_manual/');
 }
 
 function create_account() {
+    //creates a populates a window that a user can create an account in
     $("#account_window").kendoWindow({
         content: {
             url: 'create'
@@ -48,6 +52,7 @@ function create_account() {
 };
 
 function logout() {
+    //logs out the user
     $.ajax({
         type: "POST",
         url: "/client/logout/",
@@ -60,6 +65,7 @@ function logout() {
 }
 
 $(window).resize(function () {
+    //styling stuff
     $('.login-window').css({
         position: 'absolute',
         left: ($(window).width() - $('.login-window').outerWidth()) / 2,
@@ -67,15 +73,9 @@ $(window).resize(function () {
     });
 });
 
-// $(window).resize(function () {
-//     $('.account-window').css({
-//         position: 'absolute',
-//         left: ($(window).width() - $('.account-window').outerWidth()) / 2,
-//         top: ($(window).height() - $('.account-window').outerHeight()) / 2,
-//     });
-// });
 
 $(document).ready(function() {
+    //sets up buttons for particular actions on click events
     $('#account_creation').kendoButton({
         click: function(e) {
             e.preventDefault();
@@ -98,22 +98,8 @@ $(document).ready(function() {
     $('#account_logout').kendoButton({
         click: logout
     })
-    // var tabStrip = $("#tabstrip").kendoTabStrip({
-    //     animation:  {
-    //         open: {
-    //             effects: "fadeIn"
-    //         }
-    //     },
-    //     contentUrls: [
-    //         'home',
-    //         'events',
-    //         'donate',
-    //         'volunteer',
-    //         'about'
-    //     ]
-    // }).data("kendoTabStrip");
-    // tabStrip.select(0);
 
+    //load content for frontend tabs based on user permissions
     $.ajax({
         type: "POST",
         url: "/client/check_admin/",

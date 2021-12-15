@@ -1,6 +1,6 @@
 import datetime
 import json
-from json import JSONEncoder
+from datetime import timedelta
 import pytz
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render
@@ -8,14 +8,8 @@ from django.http import HttpResponse
 from nonprofit.extra.view_helper import get_mongo
 
 
-class DateTimeEncoder(JSONEncoder):
-        #Override the default method
-        def default(self, obj):
-            if isinstance(obj, (datetime.date, datetime.datetime)):
-                return obj.isoformat()
-
-
 def get_all(request):
+	"""returns a list of all currently occurring and future events to volunteers and donors"""
 	data = []
 	conn = get_mongo()
 	docs = conn.nonprofit.events.find({})
@@ -32,6 +26,7 @@ def get_all(request):
 	return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder))
 
 def get_all_time(request):
+	"""returns all events past, present and future to admin console"""
 	data = []
 	conn = get_mongo()
 	docs = conn.nonprofit.events.find({})
@@ -50,25 +45,26 @@ def get_all_time(request):
 		d = datetime.datetime.strptime(doc['end'], "%H:%M")
 		doc['end'] = d.strftime("%I:%M %p")
 		doc['myid'] = doc['id']
-		# doc.pop('id')
 		data.append(doc)
 	return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder))
 
 def uncancel_event(request):
+	""" uncancel an event provided that the particular event wouldn't have happened yet"""
 	try:
 		conn = get_mongo()
 		doc = conn.nonprofit.cancelled_events.find_one({'id': int(request.POST['id'])})
 		dt = datetime.datetime.now()
 		if doc['start'] < dt:
 			return HttpResponse("error")
-		# doc.pop('_id')
 		conn.nonprofit.events.insert(doc)
 		conn.nonprofit.cancelled_events.remove({'id': int(request.POST['id'])})
 	except Exception as e:
 		return HttpResponse('error')
 	return HttpResponse("Good")
 
+
 def get_cancelled(request):
+	"""returns a list of all cancelled events"""
 	data = []
 	conn = get_mongo()
 	docs = conn.nonprofit.cancelled_events.find({})
@@ -90,9 +86,8 @@ def get_cancelled(request):
 	return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder))
 
 
-from datetime import timedelta
-
 def edit(request):
+	"""modifies a particular event and updates event details"""
 	post = request.POST.dict()
 	start = datetime.datetime.strptime(post['startdate']+ " " + post['start'], "%Y-%m-%d %H:%M %p")
 	end = datetime.datetime.strptime(post['startdate']+ " " + post['end'], "%Y-%m-%d %H:%M %p")
@@ -116,6 +111,7 @@ def edit(request):
 	return HttpResponse("Good")
 
 def create(request):
+	"""creates an event"""
 	post = request.POST.dict()
 	start = datetime.datetime.strptime(post['start'], "%m/%d/%Y %H:%M %p")
 	end = datetime.datetime.strptime(post['end'], "%m/%d/%Y %H:%M %p")
@@ -142,6 +138,7 @@ def create(request):
 
 
 def delete_event(request):
+	"""deletes an event from all_events page"""
 	try:
 		conn = get_mongo()
 		doc = conn.nonprofit.events.find_one({'id': int(request.POST['id'])})
@@ -155,13 +152,21 @@ def delete_event(request):
 	return HttpResponse("Good")
 
 def delete(request):
+	"""deletes an event from scheduler page"""
 	try:
 		conn = get_mongo()
-		conn.nonprofit.events.remove({'id': int(request.POST['models[0][id]'])})
+		doc = conn.nonprofit.events.find_one({'id': int(request.POST['models[0][id]'])})
+		dt = datetime.datetime.now()
+		if doc['end'] < dt:
+			return HttpResponse("error")
+		conn.nonprofit.cancelled_events.insert(doc)
+		conn.nonprofit.events.remove({'id': int(request.POST['id'])})
 	except Exception as e:
 		return HttpResponse({'error': e})
 	return HttpResponse({'success': 'true'})
 
+
 def index(request):
+	"""returns home page"""
 	return render(request, 'index.html')
 

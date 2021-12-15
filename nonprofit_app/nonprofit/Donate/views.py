@@ -1,22 +1,13 @@
 import datetime
 import json
 import pytz
-from json import JSONEncoder
-
 from django.core.serializers.json import DjangoJSONEncoder
-from django.shortcuts import render
 from django.http import HttpResponse
 from nonprofit.extra.view_helper import get_mongo
 
 
-class DateTimeEncoder(JSONEncoder):
-        #Override the default method
-        def default(self, obj):
-            if isinstance(obj, (datetime.date, datetime.datetime)):
-                return obj.isoformat()
-
-
 def get_all_events(request):
+	"""returns all currently occurring or future events to Donate tab"""
 	data = []
 	conn = get_mongo()
 	docs = conn.nonprofit.events.find({})
@@ -34,6 +25,7 @@ def get_all_events(request):
 
 
 def get_my_donations(request):
+	"""returns a list of all donations a donor has made to the donate page"""
 	conn = get_mongo()
 	data = []
 	docs = conn.nonprofit.donations.find({'user': request.user.email})

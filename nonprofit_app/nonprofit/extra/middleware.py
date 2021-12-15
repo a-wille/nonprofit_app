@@ -1,5 +1,6 @@
 from .session import load_context
 
+# necessary django configurations to have the frontend work correctly
 class myMiddleware(object):
 
     def __init__(self, get_response):

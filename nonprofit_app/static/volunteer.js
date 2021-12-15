@@ -1,4 +1,6 @@
+
 $(document).ready(function() {
+    //creates and populates list of all potential events a user can volunteer for
     $("#listView").kendoListView({
         template: "<li>${data}</li>",
         dataSource: {
@@ -19,6 +21,8 @@ $(document).ready(function() {
         orientation: "horizontal",
         width: "100%",
     });
+
+    //creates and populates grid with all events a user could potentially volunteer for
     $("#grid").kendoGrid({
         dataSource: {
             transport: {
@@ -75,6 +79,8 @@ $(document).ready(function() {
                 }
             ],
     });
+
+    //creates and populates a grid with all the events a volunteer is currently signed up for
     $("#mygrid").kendoGrid({
         dataSource: {
             transport: {

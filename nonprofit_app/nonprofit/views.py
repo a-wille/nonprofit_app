@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.shortcuts import redirect
 
 def index(request):
+	#redirects user to client url
 	return redirect('/client/')

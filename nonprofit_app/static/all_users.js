@@ -1,5 +1,6 @@
 
 function getCookie(name) {
+    //returns cookie
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
@@ -18,6 +19,7 @@ function getCookie(name) {
 var user_id = '';
 
 function user_summary(data_id) {
+    //creates window for viewing a user report on button click
     $("#report_window").show().kendoWindow({
         title: 'User Report Summary',
         content: {
@@ -31,6 +33,7 @@ function user_summary(data_id) {
 $(document).ready(function() {
     const csrftoken = getCookie('csrftoken');
 
+    //populates grid with active user data
     $("#active_grid").kendoGrid({
         dataSource: {
             transport: {
@@ -110,6 +113,7 @@ $(document).ready(function() {
         ],
     });
 
+    //populates inactive user grid for frontend
     $("#delete_grid").kendoGrid({
         dataSource: {
             transport: {

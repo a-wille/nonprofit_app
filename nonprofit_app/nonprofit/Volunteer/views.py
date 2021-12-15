@@ -1,7 +1,5 @@
 import datetime
-
 import pytz
-
 from nonprofit.extra.view_helper import get_mongo
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
@@ -9,6 +7,7 @@ import json
 
 
 def cancel(request):
+    """Cancels a volunteer shift for a particular event"""
     conn = get_mongo()
     doc = conn.nonprofit.events.find_one({'id': int(request.POST.get('id'))})
     new_volunteers = doc['volunteers'].copy()
@@ -26,6 +25,7 @@ def cancel(request):
 
 
 def sign_up(request):
+    """Signs user up for a volunteer shift for a particular event if possible"""
     conn = get_mongo()
     doc = conn.nonprofit.events.find_one({'id':int(request.POST.get('id'))})
     if len(doc['volunteers']) >= int(doc['volunteers_needed']):
@@ -40,8 +40,10 @@ def sign_up(request):
         start2 = doc['start']
         end2 = doc['end']
         if start1 <= end2 and start2 <= end1:
+            # if dates overlap, can't sign up for that new shift
             return HttpResponse(json.dumps({'success': 'false'}))
 
+    # updating mongo records
     new_volunteers = doc['volunteers'].copy()
     new_volunteers.append(request.user.email)
     filter = {'id': int(request.POST.get('id'))}
@@ -56,6 +58,7 @@ def sign_up(request):
 
 
 def get_active(request):
+    """returns a list of all currently active users"""
     conn = get_mongo()
     data = []
     docs = conn.nonprofit.users.find({})
@@ -69,6 +72,7 @@ def get_active(request):
     return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder))
 
 def get_inactive(request):
+    """returns a list of all currently inactive or deactivated users"""
     conn = get_mongo()
     data = []
     docs = conn.nonprofit.inactive_users.find({})
@@ -81,12 +85,15 @@ def get_inactive(request):
     return HttpResponse(json.dumps(data, cls=DjangoJSONEncoder))
 
 def deactivate(request):
+    """deactivate a user account"""
     conn = get_mongo()
     doc = conn.nonprofit.users.find_one({'id': request.POST['id']})
     now = datetime.datetime.now()
     if doc['user'] == request.user.username:
         return HttpResponse('nope')
     events = doc['events']
+
+    # remove user from all events that they have signed up to volunteer for
     for event in events:
         doc = conn.nonprofit.events.find_one({'id': event})
         if doc and doc['start'] > now:
@@ -96,12 +103,15 @@ def deactivate(request):
             filter = {'id': event}
             new_vals = {'$set': {'volunteers': new_volunteers}}
             conn.nonprofit.events.update_one(filter, new_vals)
+
+    # update mongo records
     doc = conn.nonprofit.users.find_one({'id': request.POST['id']})
     conn.nonprofit.inactive_users.insert(doc)
     conn.nonprofit.users.remove({'id': request.POST['id']})
     return HttpResponse('Good')
 
 def activate(request):
+    """activate a user account"""
     conn = get_mongo()
     doc = conn.nonprofit.inactive_users.find_one({'id': request.POST['id']})
     conn.nonprofit.users.insert(doc)
@@ -109,10 +119,8 @@ def activate(request):
     return HttpResponse('Good')
 
 
-def get_summary(request):
-    return HttpResponse("Good")
-
 def get_volunteer_events(request):
+    """get all events that a user is signed up to volunteer at"""
     data = []
     conn = get_mongo()
     email = request.user.email

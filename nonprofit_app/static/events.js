@@ -1,4 +1,5 @@
 function getCookie(name) {
+    //returns cookie
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         const cookies = document.cookie.split(';');
@@ -18,6 +19,8 @@ const csrftoken = getCookie('csrftoken');
 
 $(document).ready(function() {
     const csrftoken = getCookie('csrftoken');
+
+    //populate and display kendo scheduler with all events
     $("#scheduler").kendoScheduler({
         date: new Date(Date.now()),
         startTime: new Date(Date.now()),
@@ -68,6 +71,8 @@ $(document).ready(function() {
             },
         },
     });
+
+    //creates a form that an admin can create events from
     $("#event-form").kendoForm({
         orientation: "vertical",
         items: [{

@@ -1,5 +1,4 @@
 import datetime
-
 from django.shortcuts import render
 from django.contrib.auth.models import Group
 from django.contrib.auth import authenticate, logout
@@ -7,49 +6,56 @@ from nonprofit.client.models import User
 from django.contrib.auth import login as login_django
 from nonprofit.extra.view_helper import get_mongo
 import pytz
-# Create your views here.
-
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 
 
 def index(request):
+	# returns index page
 	return render(request, 'index.html')
 
 def events(request):
+	# returns events page
 	return render(request, 'events.html')
 
 def donate(request):
+	#returns donate page
 	return render(request, 'donate.html')
 
 def volunteer(request):
+	#returns volunteer page
 	return render(request, 'volunteer.html')
 
-def about(request):
-	return render(request, 'about.html')
-
 def all_events(request):
+	#returns all events page for admin
 	return render(request, 'all_events.html')
 
 def all_volunteers(request):
+	#returns all users page for admin
 	return render(request, 'all_users.html')
 
 def login(request):
+	#returns html content for a window that you can log in with
 	return render(request, 'login.html')
 
 def home(request):
+	#returns home tab
 	return render(request, 'home.html')
 
 def account_view(request):
+	#returns html content for a window that you can make an account from
 	return render(request, 'account_creation.html')
 
 def user_manual(request):
+	#returns user manual page
 	return render(request, 'user_manual.html')
 
 def donation_unrestricted(request):
+	#returns html content for a window that you use to make an unrestricted donation
 	return render(request, 'unrestricted_donation.html')
 
 
 def remove_substring_from_string(s, substr):
+	"""helper function for parsing url for a particular string"""
 	i = 0
 	while i < len(s) - len(substr) + 1:
 		if s[i:i + len(substr)] == substr:
@@ -60,11 +66,13 @@ def remove_substring_from_string(s, substr):
 	return s[:i] + s[i + len(substr):]
 
 def donation_restricted(request):
+	#returns html content for a window that you can make a restricted donation from
 	event_id = int(remove_substring_from_string(request.path, '/client/donate_restricted/'))
 	return render(request, 'restricted_donation.html', context={'event_id': event_id})
 
 
 def user_summary(request):
+	"""returns a user summary report for the admin to view"""
 	user_id = str(remove_substring_from_string(request.path, '/client/user_summary/'))
 	conn = get_mongo()
 	now = datetime.datetime.now()
@@ -76,6 +84,7 @@ def user_summary(request):
 	my_context['name'] = doc['user']
 	hours = 0
 	past_events = "";
+	#get all events that a user has volunteered for in the past and calculates total volunteer hours
 	if doc['volunteer']:
 		for event in doc['events']:
 			edoc = conn.nonprofit.events.find_one({'id': event})
@@ -88,6 +97,7 @@ def user_summary(request):
 														   edoc['id'])
 	my_context['volunteer_hours'] = hours
 
+	#get all donations that a user has made and calculate total donations made
 	donations = 0
 	past_donations = ""
 	if doc['donor']:
@@ -104,6 +114,7 @@ def user_summary(request):
 													   do['amount'],
 													   do['type'], event_name)
 	my_context['donations'] = donations
+	# set context variables to load in which permissions a user has to display in the report
 	permissions = ""
 	if doc['volunteer']:
 		permissions += "Volunteer, "
@@ -120,6 +131,7 @@ def user_summary(request):
 
 
 def make_restricted_donation(request):
+	"""function for a user to make a restricted donation to an event"""
 	conn = get_mongo()
 	greatest_id = 0
 	all = conn.nonprofit.donations.find({})
@@ -132,6 +144,7 @@ def make_restricted_donation(request):
 	return HttpResponse({'success': 'true'})
 
 def make_unrestricted_donation(request):
+	"""function for a user to make an unrestricted donation"""
 	conn = get_mongo()
 	greatest_id = 0
 	all = conn.nonprofit.donations.find({})
@@ -144,6 +157,7 @@ def make_unrestricted_donation(request):
 	return HttpResponse({'success': 'true'})
 
 def create_account(request):
+	"""creates an account for a user"""
 	user = User.objects.create(username=request.POST.get('user'),
 							   email=request.POST.get('email'),
 							   password=request.POST.get('pass'),
@@ -162,7 +176,6 @@ def create_account(request):
 		v_group = Group.objects.get(name='volunteer')
 		v_group.user_set.add(user)
 
-
 	user = authenticate(username=request.POST.get('user'), password=request.POST.get('pass'))
 
 	if user:
@@ -171,6 +184,7 @@ def create_account(request):
 
 
 def check_login(request):
+	"""check if a user is authenticated or not"""
 	username = request.POST.get('user')
 	password = request.POST.get('pass')
 	user = authenticate(username=username, password=password)
@@ -181,10 +195,12 @@ def check_login(request):
 	return HttpResponse({'success': False})
 
 def my_logout(request):
+	"""logs out a user"""
 	logout(request)
 	return HttpResponse({'success': True})
 
 def check_admin(request):
+	"""checks if a user has admin permissions"""
 	if request.user.has_perm('can_admin'):
 		return HttpResponse({'success': True})
 	return HttpResponse({'success': False})
