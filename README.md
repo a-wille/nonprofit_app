@@ -1,0 +1,9 @@
+This is a sample web application for a nonprofit organization which hosts events and programs. There are four different types of users that can access and view this web application: guests, donors, volunteers and administrators. 
+
+Guests do not need to make an account to view the web app for the organization. From the web app they are able to see events, programs, and all relevant background information as to the purpose and function of the organization. They can choose to make an account to become a volunteer or donor, but they are not able to create their own admin account. 
+
+Donors are users which can provide donations, and these users can see everything a guest user can see, with a few additional functions. Donors will create accounts and sign in using their unique personal email address. Donations can be accepted in monetary or nonmonetary forms as the organization needs. Donors can attend events where they provide donations, or they can arrange for donations to happen on their own time.
+
+Volunteers are users which volunteer for the nonprofit. These users can also see everything a guest user can see, with more features. Volunteers will also be required to create accounts using a unique personal email address (if they have an account already as an Admin or Donor they do not need to make a new unique account, they will just be granted additional permissions with that email address). Volunteers can attend and work different events, or help the nonprofit on their own time as seen fit. 
+
+An administrator is the user with the greatest amount of freedom and permission on the web app. The administrator can create, maintain, search, modify and delete accounts, as well as create, search, remove, and modify events and programs for the nonprofit. Administrators can also run a variety of reports and analyze data including attendance, donations, and overall outreach of past events and programs. 
